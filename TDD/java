@@ -1,0 +1,98 @@
+//MoneyTest.java
+package money;
+import org.junitjupiter.api.Test;
+import org.junit.jupiter.api.Assertions.*;
+
+public class MoneyTest{
+
+//ドルを掛け算するテスト
+@Test
+public void testMultiplication(){
+    Money five = Money.dollar(5);
+    // 5ドルに3を掛けた結果が15ドルと等しいかテスト
+    assertEquals(Money.dollar(15),five.times(3));
+}
+
+//通貨が同じか、違うかを比較するテスト
+@Test
+public void testEquality(){
+    //同じ値かどうかチェック
+        // 5ドルと6ドルは等しくない
+    assertFalse(Money.dollar(5).equals(Money.dollar(6)));
+        // 5フランと6フランは等しくない
+    assertFalse(Money.franc(5).equals(Money.franc(6)));
+        // 5フランと5ドルは等しくない
+    assertFalse(Money.franc(5).equals(Money.dollar(5)));
+}
+
+//フランを掛け算するテスト
+@Test
+public void testFrancMultiplication(){
+    Money five = Money.franc(5);
+    //クラスメソッドとインスタンスメソッドにフランを掛け算した値を比較
+    //フランに3を掛けた結果が15フランと等しいか（このテストは成功する）
+    assertEquals(Money.franc(10),five.times(3));
+    // 5フランに3を掛けた結果が15フランと等しいか（このテストは成功する）
+    assertEquals(Money.franc(15),five.times(3));
+    }
+}
+
+//Dollar.java
+package money;
+//Moneyの実装クラス
+class Dollar extends Money{
+    //コンストラクタ
+    Dollar(int amount){
+        this.amount = amount;
+        }
+    //インスタンスのメソッド
+    // 金額を掛ける（抽象メソッドの実装）
+    Money times(int multiplier){
+        return new Dollar(amount * multipier);
+    }
+}
+
+//Franc.java
+package money;
+//Moneyの実装クラス
+class Franc extends Money{
+    //コンストラクタ
+    Franc(int amount){
+        this.amonunt = amount;
+        }
+    //インスタンスのメソッド
+    // 金額を掛ける（抽象メソッドの実装）
+    Money times(int multiplier){
+        return new Franc(amount * multiplier);
+    }
+}
+
+//Money.java
+package money;
+//ドルとフランに共通する親クラス
+abstract class Money{
+    //共通のフィールド（amount）
+    protected int amount;
+    // 金額を掛ける（サブクラスで実装が必要な抽象メソッド）
+    abstract Money times(int multiplier);
+    
+    //共通のメソッド（金額と通貨が等しいか比較する）
+    public boolean equals(Object object){
+        Money money = (Money) object;
+        return 
+            // 金額が等しく、かつクラス（通貨の種類）が等しいかチェック
+            amount == money.amount && getClass().equals(money.getClass());
+}
+
+//クラスのメソッド
+//Dollarクラスのインスタンスを生成して返す
+static Money dollar(int amount){
+    return new Dollar(amount);
+    }
+
+//クラスのメソッド
+//Francクラスのインスタンスを生成して返す
+static Money franc(int amount){
+    return new Franc(amount);
+    }
+}
