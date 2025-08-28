@@ -35,16 +35,29 @@ public void testFrancMultiplication(){
     // 5フランに3を掛けた結果が15フランと等しいか（このテストは成功する）
     assertEquals(Money.franc(15),five.times(3));
     }
+
+@Test
+public void testCurrency(){
+    assertEquals("USD",Money.dollar(1).currency());
+    assertEquals("CHF",Money.franc(1).currency());
+    }
 }
 
 //Dollar.java
 package money;
 //Moneyの実装クラス
 class Dollar extends Money{
+    private String currency;
     //コンストラクタ
     Dollar(int amount){
         this.amount = amount;
+        currency = "USD";
         }
+    //通貨の種類
+    String currency(){
+        return currency;
+    }
+
     //インスタンスのメソッド
     // 金額を掛ける（抽象メソッドの実装）
     Money times(int multiplier){
@@ -57,9 +70,16 @@ package money;
 //Moneyの実装クラス
 class Franc extends Money{
     //コンストラクタ
+    private String currency;
     Franc(int amount){
         this.amonunt = amount;
+        currency = "CHF";
         }
+    //通貨の種類
+    String currency(){
+        return currency;
+    }
+    
     //インスタンスのメソッド
     // 金額を掛ける（抽象メソッドの実装）
     Money times(int multiplier){
@@ -73,9 +93,10 @@ package money;
 abstract class Money{
     //共通のフィールド（amount）
     protected int amount;
+    protected String currency;
     // 金額を掛ける（サブクラスで実装が必要な抽象メソッド）
     abstract Money times(int multiplier);
-    
+
     //共通のメソッド（金額と通貨が等しいか比較する）
     public boolean equals(Object object){
         Money money = (Money) object;
