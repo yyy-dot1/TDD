@@ -1,7 +1,9 @@
 //MoneyTest.java
+
 package money;
-import org.junitjupiter.api.Test;
-import org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MoneyTest{
 
@@ -9,6 +11,8 @@ public class MoneyTest{
 @Test
 public void testMultiplication(){
     Money five = Money.dollar(5);
+    // 5ドルに2を掛けた結果が10ドルと等しいかテスト
+    assertEquals(Money.dollar(10),five.times(2));
     // 5ドルに3を掛けた結果が15ドルと等しいかテスト
     assertEquals(Money.dollar(15),five.times(3));
 }
@@ -17,71 +21,55 @@ public void testMultiplication(){
 @Test
 public void testEquality(){
     //同じ値かどうかチェック
-        // 5ドルと6ドルは等しくない
+    // 5ドルと6ドルは等しくない
     assertFalse(Money.dollar(5).equals(Money.dollar(6)));
-        // 5フランと6フランは等しくない
+    // 5フランと6フランは等しくない
     assertFalse(Money.franc(5).equals(Money.franc(6)));
-        // 5フランと5ドルは等しくない
+    // 5フランと5ドルは等しくない
     assertFalse(Money.franc(5).equals(Money.dollar(5)));
 }
-
-//フランを掛け算するテスト
-@Test
-public void testFrancMultiplication(){
-    Money five = Money.franc(5);
-    //クラスメソッドとインスタンスメソッドにフランを掛け算した値を比較
-    //フランに3を掛けた結果が15フランと等しいか（このテストは成功する）
-    assertEquals(Money.franc(10),five.times(3));
-    // 5フランに3を掛けた結果が15フランと等しいか（このテストは成功する）
-    assertEquals(Money.franc(15),five.times(3));
-    }
 
 @Test
 public void testCurrency(){
     assertEquals("USD",Money.dollar(1).currency());
     assertEquals("CHF",Money.franc(1).currency());
-    }
+}
 
 @Test
-public void testDifferentClassEquality(){
-    assertTrue(new Money(10,"CHF").equals(new Franc(10,"CHF")));
-    }
+public void testSimpleAddition(){
+    Money five = Money.dollar(5);
+    Expression sum = five.plus(five);
+    Bank bank = new Bank();
+    Money reduced = bank.reduce(sum,"USD");
+    assertEquals(Money.dollar(10),reduced);
 }
+}
+
 //Dollar.java
+
 package money;
 //Moneyの実装クラス
 class Dollar extends Money{
-    private String currency;
     //コンストラクタ
     Dollar(int amount){
-        this.amount = amount;
-        currency = "USD";
-        }
-    //通貨の種類
-    String currency(){
-        return currency;
+        super(amount, "USD");
     }
-
+    
     //インスタンスのメソッド
     // 金額を掛ける（抽象メソッドの実装）
     Money times(int multiplier){
-        return new Dollar(amount * multipier);
+        return new Dollar(amount * multiplier);
     }
 }
 
 //Franc.java
+
 package money;
 //Moneyの実装クラス
 class Franc extends Money{
     //コンストラクタ
-    private String currency;
     Franc(int amount){
-        this.amonunt = amount;
-        currency = "CHF";
-        }
-    //通貨の種類
-    String currency(){
-        return currency;
+        super(amount, "CHF");
     }
     
     //インスタンスのメソッド
@@ -93,11 +81,20 @@ class Franc extends Money{
 
 //Money.java
 package money;
+
+import java.util.Objects;
+
 //ドルとフランに共通する親クラス
-abstract class Money{
+abstract class Money implements Expression {
     //共通のフィールド（amount）
     protected int amount;
     protected String currency;
+    
+    Money(int amount, String currency) {
+        this.amount = amount;
+        this.currency = currency;
+    }
+
     // 金額を掛ける（サブクラスで実装が必要な抽象メソッド）
     abstract Money times(int multiplier);
 
@@ -105,19 +102,58 @@ abstract class Money{
     public boolean equals(Object object){
         Money money = (Money) object;
         return 
-            // 金額が等しく、かつクラス（通貨の種類）が等しいかチェック
-            amount == money.amount && getClass().equals(money.getClass());
-}
-
-//クラスのメソッド
-//Dollarクラスのインスタンスを生成して返す
-static Money dollar(int amount){
-    return new Dollar(amount);
+            // 金額が等しく、かつ通貨の種類が等しいかチェック
+            amount == money.amount && currency.equals(money.currency);
     }
 
-//クラスのメソッド
-//Francクラスのインスタンスを生成して返す
-static Money franc(int amount){
-    return new Franc(amount);
+    //クラスのメソッド
+    //Dollarクラスのインスタンスを生成して返す
+    static Money dollar(int amount){
+        return new Dollar(amount);
+    }
+
+    //クラスのメソッド
+    //Francクラスのインスタンスを生成して返す
+    static Money franc(int amount){
+        return new Franc(amount);
+    }
+
+    //金額を加算
+    Expression plus(Money addend){
+        return new Money(amount + addend.amount, currency);
+    }
+
+    //通貨の種類を返す
+    String currency(){
+        return currency;
+    }
+}
+
+//Bank.java
+package money;
+
+class Bank{
+    Money reduce(Expression source,String to){
+        // 加算のExpressionを処理
+        Sum sum = (Sum) source;
+        int amount = sum.augend.amount + sum.addend.amount;
+        return new Money(amount, to);
+    }
+}
+
+//Expression.java
+package money;
+interface Expression {
+}
+
+package money;
+class Sum implements Expression {
+    Money augend;
+    Money addend;
+    
+//Sum.java
+Sum(Money augend, Money addend) {
+        this.augend = augend;
+        this.addend = addend;
     }
 }
