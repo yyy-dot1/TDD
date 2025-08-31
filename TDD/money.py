@@ -2,11 +2,14 @@ from abc import ABC, abstractmethod
 
 # 通貨を扱う「式」を表す抽象基底クラス
 class Expression(ABC):
+
+    @abstractmethod
+    def plus(self,addend:'Expression'):
+        pass
     @abstractmethod
     def reduce(self, bank: 'Bank', to: str) -> 'Money':
         """指定された通貨に金額を換算する抽象メソッド。"""
         pass
-
     @abstractmethod
     def __add__(self, other: 'Expression') -> 'Expression':
         """'+' 演算子をオーバーロードするための抽象メソッド。"""
@@ -63,7 +66,7 @@ class Money(Expression):
 
 # 2つの金額の和を表すクラス
 class Sum(Expression):
-    def __init__(self, augend: 'Expression', addend: 'Expression'):
+    def __init__(self, augend: Expression, addend: Expression):
         self.augend = augend #足される数
         self.addend = addend #足す数
 
@@ -76,6 +79,9 @@ class Sum(Expression):
     def __add__(self, other: 'Expression') -> 'Expression':
         """'+' 演算子で新しいSumオブジェクトを返す。"""
         return Sum(self, other)
+    
+    def plus(self,addend:'Expression'):
+        return None
 
 # 銀行クラス：通貨換算レートを管理する
 class Bank:
@@ -94,7 +100,7 @@ class Bank:
             return 1
         # 登録済みレートの取得
         # 「1」は、デフォルト値
-        return self.rates.get(Pair(from_currency, to), 1)
+        return self.rates.get(Pair(from_currency, to))
 
 # 通貨ペアを表すクラス
 class Pair:

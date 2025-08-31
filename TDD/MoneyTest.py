@@ -1,5 +1,5 @@
 import unittest
-from money import Bank, Money, Sum
+from money import Bank, Expression, Money, Sum
 
 class MoneyTest(unittest.TestCase):
 
@@ -26,11 +26,11 @@ class MoneyTest(unittest.TestCase):
         self.assertEqual("CHF",Money.franc(1).currency())
 
     def testSimpleAddition(self):
-
         #5ドルをfiveに格納
         five = Money.dollar(5)
         # 5ドル+5ドル=10ドル
-        sum = Money.dollar(5).plus(five)
+        #sum = Money.dollar(5).plus(five)
+        sum = five + five
         #５ドルにplusメソッドで5ドル加算しsumに格納
         bank = Bank()
         #Expressionに為替レートを適用することによって得られる換算結果
@@ -40,11 +40,11 @@ class MoneyTest(unittest.TestCase):
 
     def testPlusReturnsSum(self):
         five = Money.dollar(5)
-        result = five.plus(five)
+        result: Expression = five + five
         #five.plus(five)とSumクラスで手動で計算された結果が同じかどうかテスト
         self.assertIsInstance(result,Sum)
-        self.assertEqual(five,result.augend)
-        self.assertEqual(five,result.addend)  
+        self.assertEqual(five, result.augend)
+        self.assertEqual(five, result.addend)  
 
     # 加算された結果が同じかどうかテスト
     def testReduceSum(self):
@@ -70,6 +70,14 @@ class MoneyTest(unittest.TestCase):
 
     def testIdentityRate(self):
         self.assertEqual(1,Bank().rate("USD","USD"))
+
+    def testMixedAddition(self):
+        self.fiveBucks = Money.dollar(5)
+        self.tenFrancs = Money.franc(10)
+        self.bank = Bank() 
+        self.bank.addRate("CHF","USD",2)
+        self.result = self.bank.reduce(self.fiveBucks + self.tenFrancs,"USD")
+        self.assertEqual(Money.dollar(10),self.result)
 
 if __name__ == '__main__':
     unittest.main()
