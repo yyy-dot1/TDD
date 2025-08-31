@@ -43,7 +43,7 @@ class Money(Expression):
         """'+' 演算子でSumオブジェクトを返す。"""
         return Sum(self, other)
 
-    def times(self, multiplier: int) -> 'Money':
+    def times(self, multiplier: int) -> 'Expression':
         """金額を指定された倍率で掛ける。"""
         return Money(self.amount * multiplier, self.currency())
 
@@ -72,14 +72,12 @@ class Money(Expression):
 
 # 2つの金額の和を表すクラス
 class Sum(Expression):
-    def __init__(self, augend: Expression, addend: Expression,multiplier):
+    def __init__(self, augend: Expression, addend: Expression):
         self.augend = augend #足される数
         self.addend = addend #足す数
-        self.multiplier = multiplier
 
-    def items(self,multiplier:int):
-        return Sum(self.augend.times(self.multiplier),self.addend.times(self.multiplier))
-    
+    def times(self,multiplier:int):
+        return Sum(self.augend.times(multiplier),self.addend.times(multiplier))
 
     def reduce(self, bank: 'Bank', to: str) -> 'Money':
         """和を換算し、合計金額を返す。"""
@@ -94,15 +92,16 @@ class Sum(Expression):
     def plus(self,addend:'Expression'):
         return Sum(self,addend)
     
-    def times(self):
-        return Sum(self.augend(self.multiplier),self.addend(self.multiplier))
-
 # 銀行クラス：通貨換算レートを管理する
 class Bank:
     def __init__(self):
         """通貨ペアと換算レートを保存する辞書を初期化する。"""
         self.rates: dict['Pair', int] = {}
-    def addRate(self, from_currency: str, to: str, rate: int) -> None:
+
+    def reduce(self,source:Expression,to:str):
+        return source.reduce(self,to)
+    
+    def add_rate(self, from_currency: str, to: str, rate: int) -> None:
         """換算レートを追加する。"""
         self.rates[Pair(from_currency, to)] = rate
 
@@ -127,6 +126,6 @@ class Pair:
             return self.from_currency == other.from_currency and self.to == other.to
         return False
 
-    def hashCode(self) -> int:
+    def __hash__(self) -> int:
         """辞書のキーとして使えるようハッシュ値を返す。"""
-        return 0
+        return hash((self.from_currency,self.to))

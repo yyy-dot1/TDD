@@ -10,7 +10,6 @@ class MoneyTest(unittest.TestCase):
         # フランに3を掛けた結果が15フランと等しいか（このテストは成功する）
         self.assertEqual(Money.franc(15), five.times(3))
 
-    
     # 通貨が同じか、違うかを比較するテスト
     def testEquality(self):
         # 5ドルと6ドルは等しくない
@@ -48,19 +47,19 @@ class MoneyTest(unittest.TestCase):
 
     # 加算された結果が同じかどうかテスト
     def testReduceSum(self):
-        sum =  Sum(Money.dollar(3),Money.dollar(4))
+        self.sum =  Sum(Money.dollar(3),Money.dollar(4))
         bank = Bank()
         #7ドル,USD
-        self.result = bank.reduce(sum,"USD")
+        result = bank.reduce(self.sum,"USD")
         #Moneyクラスのインスタンスの値とresult(7ドル,USD)が同じか確認する
-        self.assertEqual(Money.dollar(7),self.result)
+        self.assertEqual(Money.dollar(7),result)
 
     # 金額と貨幣の種類（通貨）の両方が一致しているかどうかを検証
     def testReduceMoney(self):
         bank = Bank()
-        self.result = bank.reduce(Money.dollar(1),"USD")
+        result = bank.reduce(Money.dollar(1),"USD")
         # Moneyクラスのインスタンスとreduceの結果が一致しているかどうか
-        self.assertEqual(Money.dollar(1),self.result)
+        self.assertEqual(Money.dollar(1),result)
 
     def testReduceMoneyDifferentCurrency(self):
         bank = Bank()
@@ -76,8 +75,8 @@ class MoneyTest(unittest.TestCase):
         self.tenFrancs = Money.franc(10)
         self.bank = Bank() 
         self.bank.addRate("CHF","USD",2)
-        self.result = self.bank.reduce(self.fiveBucks + self.tenFrancs,"USD")
-        self.assertEqual(Money.dollar(10),self.result)
+        result = self.bank.reduce(self.fiveBucks + self.tenFrancs,"USD")
+        self.assertEqual(Money.dollar(10),result)
 
     def testSumplusMoney(self):
         self.fiveBucks = Money.dollar(5)
@@ -85,8 +84,8 @@ class MoneyTest(unittest.TestCase):
         self.bank = Bank()
         self.bank.addRate("CHF","USD",2)
         self.sum = Sum(self.fiveBucks,self.tenFrancs).plus(self.fiveBucks)
-        self.result = self.bank.reduce(sum,"USD")
-        self.assertEqual(Money.dollar(15),self.result)
+        result = self.bank.reduce(self.sum,"USD")
+        self.assertEqual(Money.dollar(15),result)
 
     def testSumTimes(self):
         self.fiveBucks = Money.dollar(5)
@@ -94,8 +93,8 @@ class MoneyTest(unittest.TestCase):
         self.bank = Bank()
         self.bank.addRate("CHF","USD",2)
         self.sum = Sum(self.fiveBucks,self.tenFrancs).times(2)
-        self.result = self.bank.reduce(sum,"USD")
-        self.assertEqual(Money.dollar(15),self.result)
+        result = self.bank.reduce(self.sum,"USD")
+        self.assertEqual(Money.dollar(20),result)
     
 if __name__ == '__main__':
     unittest.main()
