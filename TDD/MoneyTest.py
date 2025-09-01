@@ -37,6 +37,10 @@ class MoneyTest(unittest.TestCase):
         #Moneyクラスの10ドルとbankクラスのsum(five.plus(five))が同じ値かどうかチェック
         self.assertEqual(Money.dollar(10),reduced)
 
+# 加算演算子が正しくSumオブジェクトを返しているかをテスト
+    # Moneyオブジェクト同士を+記号で足し合わせたときに、
+    # すぐに計算結果の金額が返されるのではなく、
+    # 計算式を表すSumオブジェクトが返されるかどうか確認
     def testPlusReturnsSum(self):
         five = Money.dollar(5)
         result: Expression = five + five
@@ -61,15 +65,17 @@ class MoneyTest(unittest.TestCase):
         # Moneyクラスのインスタンスとreduceの結果が一致しているかどうか
         self.assertEqual(Money.dollar(1),result)
 
+    # 異なる通貨を換算できるかをテスト
     def testReduceMoneyDifferentCurrency(self):
         bank = Bank()
         bank.addRate("CHF","USD",2)
         result = bank.reduce(Money.franc(2),"USD")
         self.assertEqual(Money.dollar(1),result)
-
+    # 同じ通貨間の換算レートが1であることを確認
     def testIdentityRate(self):
         self.assertEqual(1,Bank().rate("USD","USD"))
 
+    # 異なる通貨の金額を正しく足し算できるかをテスト
     def testMixedAddition(self):
         self.fiveBucks = Money.dollar(5)
         self.tenFrancs = Money.franc(10)
@@ -78,6 +84,8 @@ class MoneyTest(unittest.TestCase):
         result = self.bank.reduce(self.fiveBucks + self.tenFrancs,"USD")
         self.assertEqual(Money.dollar(10),result)
 
+    # 金額の合計（Sum）に別の金額（Money）を正しく足し、
+    # その合計を正確に換算できるか
     def testSumplusMoney(self):
         self.fiveBucks = Money.dollar(5)
         self.tenFrancs = Money.franc(10)
@@ -87,6 +95,10 @@ class MoneyTest(unittest.TestCase):
         result = self.bank.reduce(self.sum,"USD")
         self.assertEqual(Money.dollar(15),result)
 
+    #計算式全体を乗算できるか
+        # 単に数値に倍率をかけるのではなく、
+        #  "金額の和"という式そのものに倍率をかけて、
+        # その結果が正しいかを確認
     def testSumTimes(self):
         self.fiveBucks = Money.dollar(5)
         self.tenFrancs = Money.franc(10)
